@@ -3,9 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/Dougle101/Gator/internal/config"
 )
+
+type state struct {
+	cfg *config.Config
+}
 
 func main() {
 
@@ -14,15 +19,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = cfg.SetUser("Dougle101")
-	if err != nil {
-		log.Fatal(err)
+	s := &state{cfg: &cfg}
+	cmds := commands{cmd_map: make(map[string]func(*state, command) error)}
+
+	cmds.register("login", handlerLogin)
+
+	user_cmd := os.Args
+	if len(user_cmd) < 2 {
+		fmt.Printf("Fatal error: You must provide a command.")
+		os.Exit(1)
 	}
 
-	cfg, err = config.Read()
+	err = cmds.run(s, command{name: user_cmd[1], args: user_cmd[2:]})
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Fatal error: %v", err)
+		os.Exit(1)
 	}
-	fmt.Print(cfg)
 
+	os.Exit(0)
 }
