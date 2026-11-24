@@ -34,10 +34,12 @@ func main() {
 
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
+	cmds.register("users", handlerUsers)
 
 	user_cmd := os.Args
 	if len(user_cmd) < 2 {
-		fmt.Printf("Fatal error: You must provide a command.")
+		fmt.Printf("Fatal error: You must provide a command.\n")
 		os.Exit(1)
 	}
 

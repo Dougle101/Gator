@@ -16,7 +16,7 @@ type commands struct {
 func (c *commands) run(s *state, cmd command) error {
 	fnc, ok := c.cmd_map[cmd.name]
 	if !ok {
-		return fmt.Errorf("Command '%s' not found", cmd.name)
+		return fmt.Errorf("Command '%s' not found\n", cmd.name)
 	}
 	err := fnc(s, cmd)
 	return err
