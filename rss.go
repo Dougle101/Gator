@@ -7,6 +7,10 @@ import (
 	"html"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/Dougle101/Gator/internal/database"
+	"github.com/google/uuid"
 )
 
 type RSSFeed struct {
@@ -69,5 +73,25 @@ func handlerAgg(s *state, cmd command) error {
 	for _, item := range feed.Channel.Item {
 		fmt.Printf("- %s\n %s\n", item.Title, item.Link)
 	}
+	return nil
+}
+
+func handlerCreateFeed(s *state, cmd command) error {
+	if len(cmd.args) != 2 {
+		return fmt.Errorf("Usage: gator addfeed <Feed Name> <Feed URL>, received %d arguments (expecting 2)", len(cmd.args))
+	}
+
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("Error fetching user: %v\n", err)
+	}
+
+	feed_params := database.CreateFeedParams{ID: uuid.New(), CreatedAt: time.Now(), UpdatedAt: time.Now(), Name: cmd.args[0], Url: cmd.args[1], UserID: user.ID}
+
+	feed, err := s.db.CreateFeed(context.Background(), feed_params)
+	if err != nil {
+		return fmt.Errorf("Error creating feed: %v\n", err)
+	}
+	fmt.Printf("Created Feed: %+v\n", feed)
 	return nil
 }
