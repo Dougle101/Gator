@@ -95,3 +95,34 @@ func handlerCreateFeed(s *state, cmd command) error {
 	fmt.Printf("Created Feed: %+v\n", feed)
 	return nil
 }
+
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("Usage: 'gator feeds', received %d arguments (expecting 0)\n", len(cmd.args))
+	}
+
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("Error fetching feeds: %v\n", err)
+	}
+
+	if len(feeds) == 0 {
+		fmt.Printf("Feeds database is empty.\n")
+		return nil
+	}
+
+	for i, feed := range feeds {
+		feed_user, err := s.db.MatchUser(context.Background(), feed.UserID)
+		if err != nil {
+			fmt.Printf("Error fetching feed details, skipping (index: %d) ...\n", i)
+			continue
+		}
+		fmt.Printf("#%d\n", i+1)
+		fmt.Printf("Name: %s\n", feed.Name)
+		fmt.Printf("URL: %s\n", feed.Url)
+		fmt.Printf("Created by: %s\n", feed_user)
+		fmt.Printf("------\n")
+	}
+
+	return nil
+}
